@@ -6,13 +6,13 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/morzhanov/react-media-editor/issues)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<img src="https://i.imgur.com/e3B8bRP.png" alt="logo" />
+<img src="https://ibb.co/Jy50yNn" alt="logo" />
 
 ## Description
 
 Use this library to add image/video editor to you React application.
 
-This library contains drawing tools which you can use to draw graphical shapes on you image or video sources. Package contains ImageEditor and VideoEditor components.
+This library contains drawing tools which you can use to draw graphical shapes on your image sources. Package contains ImageEditor component.
 
 ## Installation
 
@@ -33,49 +33,36 @@ To run example:
 * yarn start
 * open <a href="localhost:3000">localhost:3000</a>
 
-## Demo
-
-You can review how to use ImageEditor on codesandbox:
-
-[![Edit 5349lln724](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/5349lln724?view=preview)
-
 ## Usage
-
-Here is an example how to use VideoEditor compoent within you application:
-
-```
-import React from 'react'
-import { SketchPicker } from 'react-color'
-import { VideoEditor } from 'react-media-editor'
-
-const Video = () => (
-  <div className="page-wrapper editor">
-    <div className="container">
-      <VideoEditor
-        colorPicker={SketchPicker}
-        src="https://your.video.mp4"
-      />
-    </div>
-  </div>
-)
-
-export default Video
-```
-
-Result: [Imgur](https://i.imgur.com/e3B8bRP.png)
 
 Example using ImageEditor:
 
 ```
 import React from 'react'
-import { SketchPicker } from 'react-color'
 import { ImageEditor } from 'react-media-editor'
-import ExampleImage from '../assets/img/example.png'
+import ExampleImage from '../assets/img/ex3.jpg'
+import Tools from '../../../src/painter/entities/Tools'
 
 const Image = () => (
   <div className="page-wrapper editor">
     <div className="container">
-      <ImageEditor colorPicker={SketchPicker} src={ExampleImage} />
+      <ImageEditor imgSrc={ExampleImage} onSave={(e) => {console.log(e)}} height={400}>
+      {
+        ({ undo, clear, save, setActiveTool, setActiveColor, setBrushSize }) => (
+          <div>
+            <button onClick={() => setActiveTool(Tools.Line)}>Line</button>
+            <button onClick={() => setActiveTool(Tools.Arrow)}>Arrow</button>
+            <button onClick={() => setActiveTool(Tools.Elipse)}>Elipse</button>
+            <button onClick={() => setActiveTool(Tools.Rectangle)}>Rectangle</button>
+            <button onClick={() => clear()}>Clear</button>
+            <button onClick={() => undo()}>Undo</button>
+            <button onClick={() => save()}>Save</button>
+            <button onClick={() => setActiveColor("green")}>Set green brush</button>
+            <button onClick={() => setBrushSize(30)}>Set brush size to 50</button>
+          </div>
+        )
+      }
+      </ImageEditor>
     </div>
   </div>
 )
@@ -83,31 +70,7 @@ const Image = () => (
 export default Image
 ```
 
-Result: [Imgur](https://i.imgur.com/hER5fN8.png)
-
-
-#### Notice
-
-If you want to enable color change feature you should add <a href="https://casesandberg.github.io/react-color/">react-color</a> package to your project, and then pass it's component as colorPainter prop to Editor. Example:
-
-```
-...
-import { SketchPicker } from 'react-color' // we will use SketchPicker
-...
-
-// somwhere in the React render() method
- <VideoEditor
-   colorPicker={SketchPicker}
-   src="https://your.video.mp4"
- />
-...
-```
-
-### ImageEditor and VideoEditor props
-
-<b>colorPicker</b> - react-color component to enable color pick feature.
-
-<b>src</b> - image or video source.
+Result: [Imgur](https://ibb.co/Jy50yNn)
 
 ## Main Technologies and libraries
 
@@ -119,10 +82,6 @@ import { SketchPicker } from 'react-color' // we will use SketchPicker
 - <a href="https://github.com/prettier/prettier">Prettier</a>
 - <a href="https://babeljs.io/">Babel</a>
 
-## More
-
-If you would like to add comments to audio files please take a look on <a href="https://github.com/morzhanov/react-audio-comments">react-audio-comments</a> library.
-
 ## Contributing
 
 1.  Fork it!
@@ -131,9 +90,13 @@ If you would like to add comments to audio files please take a look on <a href="
 4.  Push to the branch: `git push origin my-new-feature`
 5.  Submit a pull request :D
 
-## Author
+## Original Author
 
 Vlad Morzhanov
+
+## Extension Author
+
+Denys Kharitesku
 
 ## License
 

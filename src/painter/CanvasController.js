@@ -12,9 +12,10 @@ class CanvasController {
     this.brushColor = data.brushColor
     this.brushSize = data.brushSize
     this.textSize = data.textSize
-    this.width = data.width
-    this.height = data.height
+    this.width = data.canvasWidth
+    this.height = data.canvasHeight
     this.forceRedraw = data.forceRedraw
+    this.ratio = data.ratio
 
     this.tool = Tools.Pencil
     this.isMouseDown = false
@@ -88,13 +89,13 @@ class CanvasController {
     const rect = this.canvas.getBoundingClientRect()
     let clientX = e.clientX
     let clientY = e.clientY
-    if (e.touches && e.touches.length > 0) {
-      clientX = e.touches[0].clientX
-      clientY = e.touches[0].clientY
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      clientX = e.changedTouches[0].clientX
+      clientY = e.changedTouches[0].clientY
     }
     return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
+      x: (clientX - rect.left) * this.ratio,
+      y: (clientY - rect.top) * this.ratio
     }
   }
   /* eslint-enable */
@@ -293,6 +294,7 @@ class CanvasController {
         centerY + radiusY * Math.sin(i)
       )
     }
+    debugger;
   }
 
   // Tools and controls methods
@@ -322,14 +324,7 @@ class CanvasController {
   }
 
   onSave = () => {
-    const image = this.canvas.toDataURL('image/png')
-
-    const a = document.createElement('a')
-    a.href = image
-    a.download = `${new Date().getTime()}.png`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
+    return this.canvas.toDataURL('image/png')
   }
 
   onToolsChange = id => {
@@ -337,8 +332,11 @@ class CanvasController {
   }
 
   onColorChange = color => {
-    this.brushColor = color.hex
-    this.canvasPainter.redraw()
+    this.brushColor = color
+  }
+  
+  onBrushSizeChange = size => {
+    this.brushSize = size;
   }
 }
 

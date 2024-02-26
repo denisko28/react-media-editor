@@ -1,12 +1,8 @@
 import React from 'react'
-import DrawTools from './DrawTools'
 import CanvasController from './CanvasController'
 
 class CanvasPainter extends React.Component {
   static defaultProps = {
-    width: 400,
-    height: 400,
-    ratio: 16 / 9,
     brushColor: '#f33',
     brushSize: 10,
     textSize: 18
@@ -14,45 +10,29 @@ class CanvasPainter extends React.Component {
 
   constructor(props) {
     super(props)
+    this.state = { canvasWidth: this.props.canvasWidth, canvasHeight: this.props.canvasHeight, ratio: this.props.ratio }
     this.controller = new CanvasController()
-    this.state = {
-      ratio: props.ratio,
-      width: props.width,
-      height: props.height
-    }
   }
 
   componentDidMount() {
-    this.controller.init({
-      canvas: this.canvas,
-      ctx: this.ctx,
-      canvasPainter: this,
-      ...this.props
-    })
-    this.changeSize()
-    window.addEventListener('resize', this.changeSize)
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.changeSize)
-  }
-
-  changeSize = () => {
-    const { ratio } = this.state
-    this.setState({
-      width: this.canvas.offsetWidth,
-      height: this.canvas.offsetWidth / ratio
-    })
-
-    const parent = this.canvas.parentNode
-    setTimeout(() => {
-      this.setState({
-        width: parent.offsetWidth,
-        height: parent.offsetWidth / ratio
+    if(this.canvas) {
+      this.controller.init({
+        canvas: this.canvas,
+        ctx: this.ctx,
+        canvasPainter: this,
+        ...this.props
       })
-      this.redraw()
-      this.forceUpdate()
-    }, 100)
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.canvasWidth !== this.props.canvasWidth) {
+      this.setState({
+        canvasWidth: this.props.canvasWidth,
+        canvasHeight: this.props.canvasHeight,
+        ratio: this.props.ratio
+      });
+    }
   }
 
   redraw = () => {
@@ -62,51 +42,65 @@ class CanvasPainter extends React.Component {
     if (afterRender) afterRender()
   }
 
+  handleSave = () => {
+    const url = this.controller.onSave();
+    this.props.onSave(url);
+  }
+
   render() {
-    const { width, height } = this.state
-    const { style, children, colorPicker } = this.props
+    const { style, children} = this.props;
+    const { canvasWidth, canvasHeight, ratio } = this.state;
+    const width = canvasWidth / ratio;
+    const height = canvasHeight / ratio;
+    if(!ratio || !canvasWidth || !canvasHeight)
+      return <></>;
 
     return (
-      <div className="canvas-painter">
-        <DrawTools
-          colorPicker={colorPicker}
-          onUndo={this.controller.onUndo}
-          onClear={this.controller.onClear}
-          onSave={this.controller.onSave}
-          onToolsChange={this.controller.onToolsChange}
-          onColorChange={this.controller.onColorChange}
-        />
-        <canvas
-          ref={canvas => {
-            if (canvas) {
-              this.canvas = canvas
-              this.ctx = canvas.getContext('2d')
-            }
-          }}
-          style={{
-            background: '#000',
-            display: 'block',
-            touchAction: 'none',
-            ...style
-          }}
-          width={width}
-          height={height}
-          onClick={() => false}
-          onMouseDown={this.controller.onMouseDown}
-          onMouseUp={this.controller.onMouseUp}
-          onMouseMove={this.controller.onMouseMove}
-          onMouseOut={() => {
-            this.controller.isMouseDown = false
-          }}
-          onTouchStart={this.controller.onMouseDown}
-          onTouchMove={this.controller.onMouseMove}
-          onTouchEnd={this.controller.onMouseUp}
-          onTouchCancel={() => {
-            this.controller.isMouseDown = false
-          }}
-        />
-        {children}
-      </div>
+      <>
+        <div className="canvas-painter">
+          <canvas
+            ref={canvas => {
+              if (canvas) {
+                this.canvas = canvas
+                this.ctx = canvas.getContext('2d')
+              }
+            }}
+            style={{
+              background: '#000',
+              display: 'block',
+              touchAction: 'none',
+              width: width,
+              height: height,
+              ...style
+            }}
+            width={canvasWidth}
+            height={canvasHeight}
+            onClick={() => false}
+            onMouseDown={this.controller.onMouseDown}
+            onMouseUp={this.controller.onMouseUp}
+            onMouseMove={this.controller.onMouseMove}
+            onMouseOut={() => {
+              this.controller.isMouseDown = false
+            }}
+            onTouchStart={this.controller.onMouseDown}
+            onTouchMove={this.controller.onMouseMove}
+            onTouchEnd={this.controller.onMouseUp}
+            onTouchCancel={() => {
+              this.controller.isMouseDown = false
+            }}
+          />
+        </div>
+        {
+          children({
+            undo: this.controller.onUndo,
+            clear: this.controller.onClear,
+            save: this.handleSave,
+            setActiveTool: this.controller.onToolsChange,
+            setActiveColor: this.controller.onColorChange,
+            setBrushSize: this.controller.onBrushSizeChange
+          })
+        }
+      </>
     )
   }
 }

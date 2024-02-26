@@ -4,46 +4,56 @@ import CanvasPainter from '../painter/CanvasPainter'
 class ImageEditor extends React.Component {
   canvasPainter = React.createRef()
 
-  state = { ratio: 16 / 9, image: null }
+  state = { canvasWidth: 0, canvasHeight: 0, ratio: null, media: null }
 
   componentDidMount() {
-    const { src } = this.props
+    const { imgSrc, height, width } = this.props;
     const img = new window.Image()
     img.setAttribute('crossorigin', 'anonymous')
     img.onload = () => {
-      const ratio = img.width / img.height
-      this.setState({ ratio, media: img })
+      var ratio = 1;
+      if(width)
+        ratio = img.width / width;
+      else if(height)
+        ratio = img.height / height;
+      
+      this.setState({ canvasWidth: img.width, canvasHeight: img.height, ratio: ratio, media: img })
     }
-    img.src = src
+    img.src = imgSrc
   }
 
   renderImage = () => {
     if (!this.canvasPainter) return
 
     const { canvas, ctx } = this.canvasPainter || {}
-    const { media, ratio } = this.state
+    const { media, canvasWidth, canvasHeight } = this.state
     if (canvas && media) {
-      ctx.drawImage(media, 0, 0, canvas.width, canvas.width / ratio)
+      ctx.drawImage(media, 0, 0, canvasWidth, canvasHeight)
     }
   }
 
   render() {
-    const { colorPicker, src } = this.props
+    const { imgSrc, onSave, children } = this.props
     const { media } = this.state
 
-    if (!media || !src) return null
+    if (!media || !imgSrc) return null
 
     return media ? (
       <div style={{ width: '100%' }}>
         <CanvasPainter
-          colorPicker={colorPicker}
+          onSave={onSave}
           forceRedraw={this.renderImage}
           beforeRender={this.renderImage}
+          canvasWidth={this.state.canvasWidth}
+          canvasHeight={this.state.canvasHeight}
+          ratio={this.state.ratio}
           ref={ref => {
             this.canvasPainter = ref
             this.renderImage()
           }}
-        />
+        >
+          {children}
+        </CanvasPainter>
       </div>
     ) : null
   }

@@ -39,14 +39,19 @@ Example using ImageEditor:
 
 ```
 import React from 'react'
-import { ImageEditor } from 'react-media-editor'
-import ExampleImage from '../assets/img/ex3.jpg'
-import Tools from '../../../src/painter/entities/Tools'
+import Loader from "../LocalLoader/Loader";
+import { ImageEditor } from '@denisko28/react-media-editor'
+import Tools from '@denisko28/react-media-editor/src/painter/entities/Tools'
 
 const Image = () => (
   <div className="page-wrapper editor">
     <div className="container">
-      <ImageEditor imgSrc={ExampleImage} onSave={(e) => {console.log(e)}} height={400}>
+      <ImageEditor 
+        imgSrc={ExampleImage} 
+        onSave={(e) => {console.log(e)}} 
+        height={400}
+        loader={<Loader/>}
+      >
       {
         ({ undo, clear, save, setActiveTool, setActiveColor, setBrushSize }) => (
           <div>

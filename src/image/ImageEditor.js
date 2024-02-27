@@ -16,7 +16,7 @@ class ImageEditor extends React.Component {
         ratio = img.width / width;
       else if(height)
         ratio = img.height / height;
-      
+
       this.setState({ canvasWidth: img.width, canvasHeight: img.height, ratio: ratio, media: img })
     }
     img.src = imgSrc
@@ -33,20 +33,20 @@ class ImageEditor extends React.Component {
   }
 
   render() {
-    const { imgSrc, onSave, children } = this.props
-    const { media } = this.state
+    const { imgSrc, onSave, style, loader, children } = this.props;
+    const { canvasWidth, canvasHeight, ratio, media } = this.state;
 
-    if (!media || !imgSrc) return null
-
-    return media ? (
-      <div style={{ width: '100%' }}>
+    return (media && imgSrc) ? (
+      <div>
         <CanvasPainter
           onSave={onSave}
           forceRedraw={this.renderImage}
           beforeRender={this.renderImage}
-          canvasWidth={this.state.canvasWidth}
-          canvasHeight={this.state.canvasHeight}
-          ratio={this.state.ratio}
+          canvasWidth={canvasWidth}
+          canvasHeight={canvasHeight}
+          ratio={ratio}
+          style={style}
+          loader={loader}
           ref={ref => {
             this.canvasPainter = ref
             this.renderImage()
@@ -55,7 +55,7 @@ class ImageEditor extends React.Component {
           {children}
         </CanvasPainter>
       </div>
-    ) : null
+    ) : <>{loader}</>
   }
 }
 

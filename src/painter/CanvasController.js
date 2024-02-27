@@ -17,7 +17,7 @@ class CanvasController {
     this.forceRedraw = data.forceRedraw
     this.ratio = data.ratio
 
-    this.tool = Tools.Pencil
+    this.tool = Tools.Rectangle
     this.isMouseDown = false
     this.hasInput = false
     this.textPosition = {}
@@ -329,14 +329,17 @@ class CanvasController {
 
   onToolsChange = id => {
     this.tool = id
+    this.canvasPainter.redraw()
   }
 
   onColorChange = color => {
     this.brushColor = color
+    this.canvasPainter.redraw()
   }
   
   onBrushSizeChange = size => {
     this.brushSize = size;
+    this.canvasPainter.redraw()
   }
 }
 

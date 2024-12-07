@@ -9,9 +9,12 @@ class CanvasController {
     this.canvasPainter = data.canvasPainter
     this.canvas = data.canvas
     this.ctx = data.ctx
+    this.textInputRef = data.textInputRef
+    this.textContainerRef = data.textContainerRef
+    this.setTextFocus = data.setTextFocus
     this.brushColor = data.brushColor
-    this.brushSize = data.brushSize
-    this.textSize = data.textSize
+    this.brushSize = data.brushSize * data.ratio
+    this.textSize = data.canvasWidth > 500 ? data.textSize : 70
     this.width = data.canvasWidth
     this.height = data.canvasHeight
     this.forceRedraw = data.forceRedraw
@@ -67,7 +70,7 @@ class CanvasController {
       return
     }
     if (this.tool === Tools.Text && !this.hasInput) {
-      this.textPosition = this.getMousePos(e)
+      this.textPosition = this.getMousePos(e, true)
       this.addTextInput(this.textPosition)
       return
     }
@@ -85,7 +88,7 @@ class CanvasController {
   }
 
   /* eslint-disable */
-  getMousePos = e => {
+  getMousePos = (e, forText = false) => {
     const rect = this.canvas.getBoundingClientRect()
     let clientX = e.clientX
     let clientY = e.clientY
@@ -93,6 +96,13 @@ class CanvasController {
       clientX = e.changedTouches[0].clientX
       clientY = e.changedTouches[0].clientY
     }
+
+    if(forText)
+      return {
+        x: clientX,
+        y: clientY
+      }
+
     return {
       x: (clientX - rect.left) * this.ratio,
       y: (clientY - rect.top) * this.ratio
@@ -103,45 +113,42 @@ class CanvasController {
   // Draw text methods
 
   addTextInput = ({ x, y }) => {
-    const parent = this.canvas.parentNode
-    const input = document.createElement('input')
-    parent.appendChild(input)
-
-    input.style.position = 'absolute'
-    input.style.outline = 'none'
-    input.style.border = 'none'
-    input.style.background = 'transparent'
-    input.style.fontWeight = 'bold'
-    input.style.zIndex = '1000'
+    const inputContainer = this.textContainerRef.current
+    const input = this.textInputRef.current
     input.style.borderBottom = `2px solid ${this.brushColor}`
-    input.style.fontSize = this.textSize
     input.style.color = this.brushColor
-    input.style.left = `${x}px`
-    input.style.top = `${y + this.textSize}px`
-    input.autofocus = true
-    input.onkeydown = this.handleTextEnter
-    input.focus()
+    input.onblur = this.handleTextEnter
+    inputContainer.style.display = 'block'
+    inputContainer.style.fontSize = `${Number(this.textSize)}px`
+    inputContainer.style.left = `${x}px`
+    inputContainer.style.top = `${y - this.textSize}px`
+    this.setTextFocus()
     this.hasInput = true
   }
 
-  handleTextEnter = e => {
-    const { keyCode } = e
-    if (keyCode === 13) {
-      const { x, y } = this.textPosition
-      const text = new Text(
-        x,
-        y,
-        e.target.value,
-        this.brushColor,
-        this.textSize
-      )
+  cancelText = () => {
+    this.textContainerRef.current.style.display = 'none'
+    this.textInputRef.current.value = ''
+    this.hasInput = false
+  }
 
-      e.target.remove()
-      this.hasInput = false
-      this.textsArray.push(text)
-      this.history.push(Tools.Text)
-      this.drawText(text)
-    }
+  handleTextEnter = () => {
+    const { x, y } = this.textPosition
+    const rect = this.canvas.getBoundingClientRect()
+    const text = new Text(
+      (x - rect.left) * this.ratio,
+      (y - rect.top + this.textSize * 0.5) * this.ratio,
+      this.textInputRef.current.value,
+      this.brushColor,
+      this.textSize * this.ratio
+    )
+
+    this.textContainerRef.current.style.display = 'none'
+    this.textInputRef.current.value = ''
+    this.hasInput = false
+    this.textsArray.push(text)
+    this.history.push(Tools.Text)
+    this.drawText(text)
   }
 
   drawText = content => {
@@ -151,7 +158,7 @@ class CanvasController {
     ctx.textBaseline = 'top'
     ctx.textAlign = 'left'
     ctx.fillStyle = color
-    ctx.font = `${textSize - 2}px Arial`
+    ctx.font = `${textSize}px Arial`
     ctx.fillText(text, x, y - textSize - 4)
   }
 
@@ -294,7 +301,6 @@ class CanvasController {
         centerY + radiusY * Math.sin(i)
       )
     }
-    debugger;
   }
 
   // Tools and controls methods
@@ -323,9 +329,7 @@ class CanvasController {
     this.canvasPainter.redraw()
   }
 
-  onSave = () => {
-    return this.canvas.toDataURL('image/png')
-  }
+  onSave = () => this.canvas.toDataURL('image/png')
 
   onToolsChange = id => {
     this.tool = id
@@ -336,9 +340,9 @@ class CanvasController {
     this.brushColor = color
     this.canvasPainter.redraw()
   }
-  
+
   onBrushSizeChange = size => {
-    this.brushSize = size;
+    this.brushSize = size
     this.canvasPainter.redraw()
   }
 }

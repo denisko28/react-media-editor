@@ -1,6 +1,6 @@
 {
   "name": "@denisko28/react-media-editor",
-  "version": "2.4.6",
+  "version": "2.4.22",
   "description": "React media editor",
   "main": "dist/index.min.js",
   "scripts": {

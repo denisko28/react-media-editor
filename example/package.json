@@ -16,10 +16,10 @@
   "author": "Vlad Morzhanov",
   "license": "MIT",
   "dependencies": {
+    "@denisko28/react-media-editor": "file:../denisko28-react-media-editor-2.4.21.tgz",
     "react": "^16.6.3",
     "react-color": "^2.14.1",
-    "react-dom": "^16.6.3",
-    "react-media-editor": "file:../react-media-editor-2.4.1.tgz"
+    "react-dom": "^16.6.3"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.51",

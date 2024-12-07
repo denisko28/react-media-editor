@@ -7,17 +7,20 @@ class ImageEditor extends React.Component {
   state = { canvasWidth: 0, canvasHeight: 0, ratio: null, media: null }
 
   componentDidMount() {
-    const { imgSrc, height, width } = this.props;
+    const { imgSrc, height, width } = this.props
     const img = new window.Image()
     img.setAttribute('crossorigin', 'anonymous')
     img.onload = () => {
-      var ratio = 1;
-      if(width)
-        ratio = img.width / width;
-      else if(height)
-        ratio = img.height / height;
+      let ratio = 1
+      if (width) ratio = img.width / width
+      else if (height) ratio = img.height / height
 
-      this.setState({ canvasWidth: img.width, canvasHeight: img.height, ratio: ratio, media: img })
+      this.setState({
+        canvasWidth: img.width,
+        canvasHeight: img.height,
+        ratio,
+        media: img
+      })
     }
     img.src = imgSrc
   }
@@ -33,10 +36,10 @@ class ImageEditor extends React.Component {
   }
 
   render() {
-    const { imgSrc, onSave, style, loader, children } = this.props;
-    const { canvasWidth, canvasHeight, ratio, media } = this.state;
+    const { imgSrc, onSave, style, loader, children } = this.props
+    const { canvasWidth, canvasHeight, ratio, media } = this.state
 
-    return (media && imgSrc) ? (
+    return media && imgSrc ? (
       <div>
         <CanvasPainter
           onSave={onSave}
@@ -55,7 +58,9 @@ class ImageEditor extends React.Component {
           {children}
         </CanvasPainter>
       </div>
-    ) : <>{loader}</>
+    ) : (
+      <>{loader}</>
+    )
   }
 }
 

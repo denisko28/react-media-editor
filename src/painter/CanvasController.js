@@ -117,6 +117,7 @@ class CanvasController {
     const input = this.textInputRef.current
     input.style.borderBottom = `2px solid ${this.brushColor}`
     input.style.color = this.brushColor
+    input.onkeydown = this.handleInputKeyDown
     input.onblur = this.handleTextEnter
     inputContainer.style.display = 'block'
     inputContainer.style.fontSize = `${Number(this.textSize)}px`
@@ -124,6 +125,24 @@ class CanvasController {
     inputContainer.style.top = `${y - this.textSize}px`
     this.setTextFocus()
     this.hasInput = true
+  }
+
+  handleInputKeyDown = e => {
+    const { keyCode } = e
+
+    // Enter key press
+    if (keyCode === 13) {
+      e.preventDefault()
+      e.stopPropagation()
+      this.handleTextEnter()
+    }
+
+    // Escape key press
+    if (keyCode === 27) {
+      e.preventDefault()
+      e.stopPropagation()
+      this.cancelText()
+    }
   }
 
   cancelText = () => {
